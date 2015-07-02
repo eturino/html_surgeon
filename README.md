@@ -1,5 +1,12 @@
 # HtmlSurgeon
 
+
+[![Gem Version](https://badge.fury.io/rb/html_surgeon.svg)](http://badge.fury.io/rb/html_surgeon)
+[![Build Status](https://travis-ci.org/eturino/html_surgeon.svg?branch=master)](https://travis-ci.org/eturino/html_surgeon)
+[![Code Climate](https://codeclimate.com/github/eturino/html_surgeon.png)](https://codeclimate.com/github/eturino/html_surgeon)
+[![Code Climate Coverage](https://codeclimate.com/github/eturino/html_surgeon/coverage.png)](https://codeclimate.com/github/eturino/html_surgeon)
+
+
 Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/html_surgeon`. To experiment with that code, run `bin/console` for an interactive prompt.
 
 TODO: Delete this and the text above, and describe your gem

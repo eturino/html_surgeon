@@ -2,3 +2,16 @@ language: ruby
 rvm:
   - 2.1.2
 before_install: gem install bundler -v 1.10.3
+
+addons:
+  code_climate:
+    repo_token: ecc7b46e36ad6c2bda5d5b91fc86cbf594b8b5903c72a1fa838e53426093280d
+
+script: 'bundle exec rake spec'
+
+notifications:
+  email:
+    recipients:
+      - eturino@eturino.com
+    on_failure: change
+    on_success: never
