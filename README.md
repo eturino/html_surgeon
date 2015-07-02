@@ -196,9 +196,6 @@ Or install it yourself as:
 
     $ gem install html_surgeon
 
-## Usage
-
-TODO: Write usage instructions here
 
 ## Development
 
