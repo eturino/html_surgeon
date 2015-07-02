@@ -62,9 +62,10 @@ describe HtmlSurgeon do
 
     describe 'ChangeSet' do
       describe 'service#css' do
-        it 'returns a ChangeSet where we can chain call different changes, and apply them at the end, exposing the Nokogiri node_set' do
+        it 'returns a ChangeSet where we can chain call different changes. Exposes the Nokogiri with #node_set and delegates to the service the modified html with #html' do
           change_set = subject.css(css_selector)
           expect(change_set.node_set.size).to eq 6 # amount of h3 tags
+          expect(change_set.html). to eq subject.html
         end
       end
 

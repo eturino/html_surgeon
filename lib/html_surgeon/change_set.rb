@@ -9,7 +9,7 @@ module HtmlSurgeon
       @change_list = []
     end
 
-    delegate :audit?, to: :base
+    delegate :audit?, :html, to: :base
 
     # TODO: #preview, like run but in another doc, does not change it yet.
 
