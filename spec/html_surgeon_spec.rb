@@ -157,7 +157,7 @@ describe HtmlSurgeon do
     end
   end
 
-  describe 'README change' do
+  describe 'with README data' do
     let(:html) do
       <<-HTML
 <div>
@@ -196,9 +196,101 @@ describe HtmlSurgeon do
     let(:uuid) { change_set.uuid }
     let(:changed_at) { Oj.dump change_set.run_time }
 
+    let(:run_change) { change_set.replace_tag_name('span').add_css_class('hey').run }
+
     it 'works' do
-      change_set.replace_tag_name('span').add_css_class('hey').run
+      run_change
       expect(surgeon.html).to eq expected_html
+    end
+
+    context 'rollback' do
+      let(:rolledback_html) do
+        <<-HTML
+<div>
+    <h1>Something</h1>
+    <div id="1" class="lol to-be-changed">1</div>
+    <span>Other</span>
+    <div id="2" class="another to-be-changed">
+        <ul>
+            <li>1</li>
+            <li>2</li>
+        </ul>
+    </div>
+</div>
+        HTML
+      end
+
+      let(:partially_rolledback_html) do
+        <<-HTML
+<div>
+    <h1>Something</h1>
+    <div id="1" class="lol to-be-changed">1</div>
+    <span>Other</span>
+    <div id="2" class="another to-be-changed">
+        <ul class="yeah" data-surgeon-audit='[{"change_set":"#{uuid2}","changed_at":"#{changed_at2}","type":"add_css_class","existed_before":false,"class":"yeah"}]'>
+            <li>1</li>
+            <li>2</li>
+        </ul>
+    </div>
+</div>
+        HTML
+      end
+
+      let(:html) do
+        <<-HTML
+<div>
+    <h1>Something</h1>
+    <span id="1" class="lol to-be-changed hey" data-surgeon-audit='[{"change_set":"#{uuid}","changed_at":"#{changed_at}","type":"replace_tag_name","old":"div","new":"span"},{"change_set":"#{uuid}","changed_at":"#{changed_at}","type":"add_css_class","existed_before":false,"class":"hey"}]'>1</span>
+    <span>Other</span>
+    <div id="2" class="another to-be-changed">
+        <ul class="yeah" data-surgeon-audit='[{"change_set":"#{uuid2}","changed_at":"#{changed_at2}","type":"add_css_class","existed_before":false,"class":"yeah"}]'>
+            <li>1</li>
+            <li>2</li>
+        </ul>
+    </div>
+</div>
+        HTML
+      end
+
+      let(:uuid) { '830e96dc-fa07-40ce-8968-ea5c55ec4b84' }
+      let(:uuid2) { SecureRandom.uuid }
+      let(:changed_at) { '2015-07-02T12:52:43.874Z' }
+      let(:changed_at2) { '2015-06-01T10:10:10.123Z' }
+      let(:changed_from) { '2015-07-01'.to_date }
+
+      describe '#rollback' do
+        context 'all' do
+          let(:rollback_options) { {} }
+
+          it 'reverts all audited changes' do
+            expect(subject.rollback(**rollback_options).html).to eq rolledback_html
+          end
+        end
+
+        context 'with change_set uuid' do
+          let(:rollback_options) { { change_set: uuid } }
+
+          it 'reverts all audited changes' do
+            expect(subject.rollback(**rollback_options).html).to eq partially_rolledback_html
+          end
+        end
+
+        context 'with changed_at timestamp' do
+          let(:rollback_options) { { changed_at: changed_at } }
+
+          it 'reverts all audited changes' do
+            expect(subject.rollback(**rollback_options).html).to eq partially_rolledback_html
+          end
+        end
+
+        context 'with changed_from (rollback all changes from that moment onwards)' do
+          let(:rollback_options) { { changed_from: changed_from } }
+
+          it 'reverts all audited changes' do
+            expect(subject.rollback(**rollback_options).html).to eq partially_rolledback_html
+          end
+        end
+      end
     end
   end
 end

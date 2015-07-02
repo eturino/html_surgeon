@@ -123,7 +123,7 @@ surgeon.html # =>
 #             <li>2</li>
 #         </ul>
 #     </div>
-# </div># 
+# </div>
 ```
 
 the attribute's value (formatted) is:
@@ -178,7 +178,24 @@ surgeon.css('div.to-be-changed').replace_name_tag('article')
 surgeon.css('div.to-be-changed').add_css_class('applied-some-stuff')
 ```
 
+## Rollback
 
+the surgen can be used to revert any audited rollback. We can select what changes to rollback based on:
+
+- `change_set`: The change_set UUID
+- `changed_at`: The change timestamp
+- `changed_from`: All changes which timestamp is more recent than the given time
+
+We can also revert all audited changes.
+
+```ruby
+surgeon = HtmlSurgeon.for(GIVEN_HTML) 
+
+surgeon.rollback.html # => returns the html with all events reverted 
+surgeon.rollback(change_set: uuid).html # => returns the html with only the given change set reverted
+surgeon.rollback(changed_at: changed_at).html  # => returns the html with only the change set with timestamp reverted
+surgeon.rollback(changed_from: changed_from).html # => returns the html with any change sets with a timestamp more recent than `changed_from` reverted 
+```
 
 ## Installation
 
@@ -207,3 +224,8 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/eturino/html_surgeon.
 
+
+## CHANGESET
+
+### v 0.2.0
+- added `rollback support

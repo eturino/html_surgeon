@@ -3,12 +3,24 @@ module HtmlSurgeon
   class ChangeSet
     attr_reader :node_set, :base, :change_list, :uuid, :run_time
 
+    def self.create(node_set, base)
+      new_class.new node_set, base
+    end
+
+    def self.new_class
+      Class.new(ChangeSet) do
+        Changes.change_classes.each do |klass|
+          include klass::ChangeSetMethods
+        end
+      end
+    end
+
     def initialize(node_set, base)
       @node_set    = node_set
       @base        = base
       @change_list = []
-      @uuid     = SecureRandom.uuid
-      @run_time = nil
+      @uuid        = SecureRandom.uuid
+      @run_time    = nil
     end
 
     delegate :audit?, :html, to: :base
@@ -18,8 +30,8 @@ module HtmlSurgeon
     def run
       @run_time = Time.now.utc
 
-      node_set.each do |element|
-        apply_on_element(element)
+      node_set.each do |node|
+        apply_on_node(node)
       end
 
       self
@@ -31,21 +43,16 @@ module HtmlSurgeon
 
     # CHANGES
 
-    def replace_tag_name(new_tag_name)
-      change_list << Changes::ReplaceTagName.new(change_set: self, new_tag_name: new_tag_name)
-      self
-    end
-
-    def add_css_class(css_class)
-      change_list << Changes::AddCssClass.new(change_set: self, css_class: css_class)
-      self
-    end
-
     private
 
-    def apply_on_element(element)
+    def chain_add_change(change)
+      change_list << change
+      self
+    end
+
+    def apply_on_node(node)
       change_list.each do |change|
-        change.apply(element)
+        change.apply(node)
       end
     end
   end

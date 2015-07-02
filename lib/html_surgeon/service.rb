@@ -18,7 +18,15 @@ module HtmlSurgeon
 
     def css(css_selector)
       node_set = doc.css(css_selector)
-      ChangeSet.new(node_set, self)
+      ChangeSet.create(node_set, self)
+    end
+
+    def rollback(change_set: nil, changed_at: nil, changed_from: nil)
+      doc.css("[#{DATA_CHANGE_AUDIT_ATTRIBUTE}]").each do |node|
+        NodeReverser.new(node: node, change_set: change_set, changed_at: changed_at, changed_from: changed_from).call
+      end
+
+      self
     end
 
     private

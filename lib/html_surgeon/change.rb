@@ -1,25 +1,30 @@
 module HtmlSurgeon
 
   class Change
-    DATA_CHANGE_AUDIT_ATTRIBUTE = 'data-surgeon-audit'.freeze
+    def self.inherited(klass)
+      Changes.add_change_class(klass)
+    end
 
     attr_reader :change_set
+    delegate :audit?, to: :change_set
+    delegate :uuid, :run_time, to: :change_set, prefix: true
 
     def initialize(change_set:)
       @change_set = change_set
     end
 
-    delegate :audit?, to: :change_set
-    delegate :uuid, :run_time, to: :change_set, prefix: true
+    def apply(node)
+      auditor = auditor_class.new(node)
 
-    def apply(element)
-      prepare_audit_change(element) if audit?
-
-      apply_in element
-
-      apply_audit_change(element) if audit?
+      auditor.add_change(audit_data(node))
+      apply_in node
+      auditor.apply
 
       self
+    end
+
+    def auditor_class
+      audit? ? Auditor : Auditor::NullAuditor
     end
 
     def log
@@ -27,24 +32,6 @@ module HtmlSurgeon
     end
 
     private
-
-    def prepare_audit_change(element)
-      @audit_data = audit_data(element)
-    end
-
-    def apply_audit_change(element)
-      current = current_audit_data(element)
-      current << @audit_data
-      element[DATA_CHANGE_AUDIT_ATTRIBUTE] = Oj.dump current
-    end
-
-    def current_audit_data(element)
-      current = element[DATA_CHANGE_AUDIT_ATTRIBUTE].presence
-      return [] unless current
-
-      Oj.load current
-    end
-
     def basic_audit_data
       {
         change_set: change_set_uuid,
@@ -52,11 +39,11 @@ module HtmlSurgeon
       }
     end
 
-    def audit_data(element)
+    def audit_data(node)
       raise AbstractMethodError, "a lazy developer has not implemented this method in #{self.class}"
     end
 
-    def apply_in(_element)
+    def apply_in(_node)
       raise AbstractMethodError, "a lazy developer has not implemented this method in #{self.class}"
     end
 
