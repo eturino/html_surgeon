@@ -137,5 +137,14 @@ describe HtmlSurgeon do
         end
       end
     end
+
+    describe 'Change' do
+      it 'should not be used directly but as an abstract class' do
+        change = HtmlSurgeon::Change.new change_set: nil
+        expect { change.send :log }.to raise_error HtmlSurgeon::AbstractMethodError
+        expect { change.send :audit_data, nil }.to raise_error HtmlSurgeon::AbstractMethodError
+        expect { change.send :apply_in, nil }.to raise_error HtmlSurgeon::AbstractMethodError
+      end
+    end
   end
 end
