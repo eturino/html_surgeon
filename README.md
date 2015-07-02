@@ -110,7 +110,7 @@ If we have enabled audit, we'll get the changes applied to an element in an data
 It will store, in JSON, an array with all the changes.
 
 ```ruby
-surgeon = HtmlService.for(GIVEN_HTML)
+surgeon = HtmlService.for(GIVEN_HTML, audit: true)
 surgeon.css('.lol').replace_tag_name('span').add_css_class('hey').run
 surgeon.html # =>
 # <div>
