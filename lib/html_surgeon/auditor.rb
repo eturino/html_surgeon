@@ -6,10 +6,6 @@ module HtmlSurgeon
       @node = node
     end
 
-    def set_changes(changes)
-      @changes = changes
-    end
-
     def add_change(change_definition)
       changes << change_definition
     end
