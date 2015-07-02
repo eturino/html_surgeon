@@ -23,11 +23,9 @@ module HtmlSurgeon
       end
 
       def audit_data(element)
-        {
-          type:           :add_css_class,
-          existed_before: had_class?(element),
-          class:          css_class
-        }
+        basic_audit_data.merge type:           :add_css_class,
+                               existed_before: had_class?(element),
+                               class:          css_class
       end
 
       def element_classes(element)

@@ -76,6 +76,15 @@ surgeon.html # => html with the changes applied
 
 # original html still in
 surgeon.given_html == GIVEN_HTML # => true
+
+# you can review what was changed in the change set
+change_set.changes
+# =>
+# [
+#   "replace tag name with article",
+#   "add css class added-class",
+#   "add css class another-added-class",
+# ]
 ```
 
 We can also chain call the changes in a changeset
@@ -96,6 +105,49 @@ surgeon.html # =>
 #     </div>
 # </div>
 ```
+
+If we have enabled audit, we'll get the changes applied to an element in an data attribute.
+It will store, in JSON, an array with all the changes.
+
+```ruby
+surgeon = HtmlService.for(GIVEN_HTML)
+surgeon.css('.lol').replace_tag_name('span').add_css_class('hey').run
+surgeon.html # =>
+# <div>
+#     <h1>Something</h1>
+#     <span id="1" class="lol to-be-changed hey" data-surgeon-audit='[{"change_set":"830e96dc-fa07-40ce-8968-ea5c55ec4b84","changed_at":"2015-07-02T12:52:43.874Z","type":"replace_tag_name","old":"div","new":"span"},{"change_set":"830e96dc-fa07-40ce-8968-ea5c55ec4b84","changed_at":"2015-07-02T12:52:43.874Z","type":"add_css_class","existed_before":false,"class":"hey"}]'>1</span>
+#     <span>Other</span>
+#     <div id="2" class="another to-be-changed">
+#         <ul>
+#             <li>1</li>
+#             <li>2</li>
+#         </ul>
+#     </div>
+# </div># 
+```
+
+the attribute's value (formatted) is:
+
+```json
+[
+  {
+    "change_set":"830e96dc-fa07-40ce-8968-ea5c55ec4b84",
+    "changed_at":"2015-07-02T12:52:43.874Z",
+    "type":"replace_tag_name",
+    "old":"div",
+    "new":"span"
+  },
+  {
+    "change_set":"830e96dc-fa07-40ce-8968-ea5c55ec4b84",
+    "changed_at":"2015-07-02T12:52:43.874Z",
+    "type":"add_css_class",
+    "existed_before":false,
+    "class":"hey"
+  }
+]
+```
+
+it has a `change_set` with the UUID of the change set, `changed_at` with the moment it was applied, and the rest define the change.
 
 ## Selecting the Node Set
 

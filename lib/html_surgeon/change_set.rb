@@ -1,12 +1,14 @@
 module HtmlSurgeon
 
   class ChangeSet
-    attr_reader :node_set, :base, :change_list
+    attr_reader :node_set, :base, :change_list, :uuid, :run_time
 
     def initialize(node_set, base)
       @node_set    = node_set
       @base        = base
       @change_list = []
+      @uuid     = SecureRandom.uuid
+      @run_time = nil
     end
 
     delegate :audit?, :html, to: :base
@@ -14,9 +16,13 @@ module HtmlSurgeon
     # TODO: #preview, like run but in another doc, does not change it yet.
 
     def run
+      @run_time = Time.now.utc
+
       node_set.each do |element|
         apply_on_element(element)
       end
+
+      self
     end
 
     def changes

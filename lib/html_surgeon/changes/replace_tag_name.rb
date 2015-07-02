@@ -19,11 +19,9 @@ module HtmlSurgeon
       end
 
       def audit_data(element)
-        {
-          type: :replace_tag_name,
-          old:  element.name,
-          new:  new_tag_name
-        }
+        basic_audit_data.merge type: :replace_tag_name,
+                               old:  element.name,
+                               new:  new_tag_name
       end
     end
   end

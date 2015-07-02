@@ -10,6 +10,7 @@ module HtmlSurgeon
     end
 
     delegate :audit?, to: :change_set
+    delegate :uuid, :run_time, to: :change_set, prefix: true
 
     def apply(element)
       prepare_audit_change(element) if audit?
@@ -42,6 +43,13 @@ module HtmlSurgeon
       return [] unless current
 
       Oj.load current
+    end
+
+    def basic_audit_data
+      {
+        change_set: change_set_uuid,
+        changed_at: change_set_run_time
+      }
     end
 
     def audit_data(element)

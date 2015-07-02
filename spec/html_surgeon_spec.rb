@@ -16,6 +16,8 @@ describe HtmlSurgeon do
 
   subject { described_class.for html, **options }
 
+  let(:surgeon) { subject }
+
   describe '.for' do
     it 'returns a Service instance with given data' do
       expect(subject).to be_a HtmlSurgeon::Service
@@ -65,7 +67,7 @@ describe HtmlSurgeon do
         it 'returns a ChangeSet where we can chain call different changes. Exposes the Nokogiri with #node_set and delegates to the service the modified html with #html' do
           change_set = subject.css(css_selector)
           expect(change_set.node_set.size).to eq 6 # amount of h3 tags
-          expect(change_set.html). to eq subject.html
+          expect(change_set.html).to eq subject.html
         end
       end
 
@@ -92,11 +94,13 @@ describe HtmlSurgeon do
       end
 
       describe '#run' do
-        let(:run_changes) { subject.css(css_selector).replace_tag_name(new_tag_name).add_css_class(added_css_class).run
+        let(:change_set) { subject.css(css_selector) }
+        let(:run_changes) { change_set.replace_tag_name(new_tag_name).add_css_class(added_css_class).run
         }
 
-        it 'applies the changes in the css selected node set on the final run chained call' do
+        it 'applies the changes in the css selected node set on the final run chained call (returns the change set)' do
           run_changes
+          expect(run_changes).to eq change_set
           expect(subject.html).not_to include old_tag_name
           expect(subject.html).to include new_tag_name
 
@@ -111,14 +115,18 @@ describe HtmlSurgeon do
 
             audit_changes = [
               {
-                type: :replace_tag_name,
-                old:  old_tag_name,
-                new:  new_tag_name
+                change_set: change_set.uuid,
+                changed_at: change_set.run_time,
+                type:       :replace_tag_name,
+                old:        old_tag_name,
+                new:        new_tag_name
               },
               {
-                type: :add_css_class,
-                existed_before:  false,
-                class: added_css_class
+                change_set:     change_set.uuid,
+                changed_at:     change_set.run_time,
+                type:           :add_css_class,
+                existed_before: false,
+                class:          added_css_class
               }
             ]
 
@@ -146,6 +154,51 @@ describe HtmlSurgeon do
         expect { change.send :audit_data, nil }.to raise_error HtmlSurgeon::AbstractMethodError
         expect { change.send :apply_in, nil }.to raise_error HtmlSurgeon::AbstractMethodError
       end
+    end
+  end
+
+  describe 'README change' do
+    let(:html) do
+      <<-HTML
+<div>
+    <h1>Something</h1>
+    <div id="1" class="lol to-be-changed">1</div>
+    <span>Other</span>
+    <div id="2" class="another to-be-changed">
+        <ul>
+            <li>1</li>
+            <li>2</li>
+        </ul>
+    </div>
+</div>
+      HTML
+    end
+
+    let(:audit_options) { { audit: true } }
+
+    let(:expected_html) do
+      <<-HTML
+<div>
+    <h1>Something</h1>
+    <span id="1" class="lol to-be-changed hey" data-surgeon-audit='[{"change_set":"#{uuid}","changed_at":#{changed_at},"type":"replace_tag_name","old":"div","new":"span"},{"change_set":"#{uuid}","changed_at":#{changed_at},"type":"add_css_class","existed_before":false,"class":"hey"}]'>1</span>
+    <span>Other</span>
+    <div id="2" class="another to-be-changed">
+        <ul>
+            <li>1</li>
+            <li>2</li>
+        </ul>
+    </div>
+</div>
+      HTML
+    end
+
+    let(:change_set) { surgeon.css('.lol') }
+    let(:uuid) { change_set.uuid }
+    let(:changed_at) { Oj.dump change_set.run_time }
+
+    it 'works' do
+      change_set.replace_tag_name('span').add_css_class('hey').run
+      expect(surgeon.html).to eq expected_html
     end
   end
 end
