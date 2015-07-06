@@ -355,6 +355,22 @@ describe HtmlSurgeon do
         HTML
       end
 
+      let(:clear_audit_html) do
+        <<-HTML
+<div>
+    <h1>Something</h1>
+    <span id="1" class="lol to-be-changed hey">1</span>
+    <span>Other</span>
+    <div id="2" class="another to-be-changed">
+        <ul class="yeah">
+            <li>1</li>
+            <li>2</li>
+        </ul>
+    </div>
+</div>
+        HTML
+      end
+
       let(:id) { '830e96dc-fa07-40ce-8968-ea5c55ec4b84' }
       let(:id2) { SecureRandom.uuid }
       let(:changed_at) { '2015-07-02T12:52:43.874Z' }
@@ -392,6 +408,12 @@ describe HtmlSurgeon do
           it 'reverts all audited changes' do
             expect(subject.rollback(**rollback_options).html).to eq partially_rolledback_html
           end
+        end
+      end
+
+      describe '#clear_audit' do
+        it 'will remove from html all the audit attributes, without performing any rollback' do
+          expect(subject.clear_audit.html).to eq clear_audit_html
         end
       end
     end

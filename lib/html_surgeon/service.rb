@@ -34,6 +34,14 @@ module HtmlSurgeon
       self
     end
 
+    def clear_audit
+      doc.css("[#{DATA_CHANGE_AUDIT_ATTRIBUTE}]").each do |node|
+        NodeAuditCleaner.new(node: node).call
+      end
+
+      self
+    end
+
     private
     def doc
       @doc ||= Nokogiri::HTML.fragment @given_html.dup

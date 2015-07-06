@@ -208,6 +208,15 @@ surgeon.rollback(changed_at: changed_at).html  # => returns the html with only t
 surgeon.rollback(changed_from: changed_from).html # => returns the html with any change sets with a timestamp more recent than `changed_from` reverted 
 ```
 
+## Clear Audit trail
+
+we can clear all audit from the given html with the `clear_audit` method. 
+
+```ruby
+surgeon = HtmlSurgeon.for(GIVEN_HTML)
+surgeon.clear_audit.html # => returns the html with all audit html attributes removed
+```
+
 ## Helper Methods
 
 ### `HtmlSurgeon.node_has_css_class?(nokogiri_node, css_class)`
@@ -244,9 +253,10 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/eturin
 
 ## CHANGESET
 
-### v0.4.1
+### v0.5.0
 
 - added `node_has_css_class?` helper method to `HtmlSurgeon`
+- added `clear_audit` to surgeon 
 
 ### v0.4.0
 
