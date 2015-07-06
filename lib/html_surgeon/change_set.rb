@@ -1,7 +1,7 @@
 module HtmlSurgeon
 
   class ChangeSet
-    attr_reader :node_set, :base, :change_list, :run_time
+    attr_reader :node_set, :base, :change_list, :run_time, :refinement_callbacks
 
     def self.create(node_set, base)
       new_class.new node_set, base
@@ -16,11 +16,12 @@ module HtmlSurgeon
     end
 
     def initialize(node_set, base)
-      @node_set    = node_set
-      @base        = base
-      @change_list = []
-      @id          = SecureRandom.uuid
-      @run_time    = nil
+      @node_set             = node_set
+      @base                 = base
+      @change_list          = []
+      @id                   = SecureRandom.uuid
+      @run_time             = nil
+      @refinement_callbacks = []
     end
 
     delegate :audit?, :html, to: :base
@@ -51,6 +52,16 @@ module HtmlSurgeon
       change_list.map &:log
     end
 
+    def select(&block)
+      refinement_callbacks << [:select, block]
+      self
+    end
+
+    def reject(&block)
+      refinement_callbacks << [:reject, block]
+      self
+    end
+
     # CHANGES
 
     private
@@ -61,6 +72,19 @@ module HtmlSurgeon
     end
 
     def apply_on_node(node)
+      refinement_callbacks.each do |(type, refinement)|
+        case type
+        when :select
+          return false unless refinement.call(node)
+        when :reject
+          return false if refinement.call(node)
+        end
+      end
+
+      do_apply_on_node(node)
+    end
+
+    def do_apply_on_node(node)
       change_list.each do |change|
         change.apply(node)
       end

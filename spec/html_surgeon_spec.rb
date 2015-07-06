@@ -74,7 +74,7 @@ describe HtmlSurgeon do
 
       describe 'service#xpath' do
         it 'returns a ChangeSet where we can chain call different changes. Exposes the Nokogiri with #node_set and delegates to the service the modified html with #html' do
-          change_set = subject.xpath(xpath_selector)
+          change_set     = subject.xpath(xpath_selector)
           css_change_set = subject.css(css_selector)
           expect(change_set.node_set.size).to eq 6 # amount of h3 tags
           expect(change_set.html).to eq subject.html
@@ -83,7 +83,7 @@ describe HtmlSurgeon do
         end
       end
 
-      describe 'service#id' do
+      describe '#id' do
         let(:change_set) { subject.css(css_selector) }
         context 'with argument' do
           it 'sets the change set ID and returns the same changeset' do
@@ -107,6 +107,61 @@ describe HtmlSurgeon do
           end
         end
 
+      end
+
+      context 'callbacks' do
+        let(:html) do
+          <<-HTML
+<div>
+    <h1>Something</h1>
+    <div id="1" class="lol to-be-changed">1</div>
+    <span>Other</span>
+    <div id="2" class="another to-be-changed skip-me">
+        <ul>
+            <li>1</li>
+            <li>2</li>
+        </ul>
+    </div>
+</div>
+          HTML
+        end
+
+        let(:expected_html) do
+          <<-HTML
+<div>
+    <h1>Something</h1>
+    <span id="1" class="lol to-be-changed">1</span>
+    <span>Other</span>
+    <div id="2" class="another to-be-changed skip-me">
+        <ul>
+            <li>1</li>
+            <li>2</li>
+        </ul>
+    </div>
+</div>
+          HTML
+        end
+
+        let(:css_selector) { 'div.to-be-changed' }
+        let(:change_set) { subject.css(css_selector) }
+
+        describe '#reject' do
+          it 'returns self after adding a callback to the given block, passing the node as first argument, that will skip any action on the Node if returns truthy' do
+            res = change_set.reject { |node| node.get_attribute('class').to_s.split(' ').include? 'skip-me' }
+            expect(res).to eq change_set
+            change_set.replace_tag_name('span').run
+            expect(change_set.html).to eq expected_html
+          end
+        end
+
+        describe '#select' do
+          it 'returns self after adding a callback to the given block, passing the node as first argument, that will skip any action on the Node unless returns truthy' do
+            res = change_set.select { |node| !node.get_attribute('class').to_s.split(' ').include? 'skip-me' }
+            expect(res).to eq change_set
+            change_set.replace_tag_name('span').run
+            expect(change_set.html).to eq expected_html
+          end
+        end
       end
 
       describe '#replace_tag_name' do

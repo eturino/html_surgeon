@@ -165,6 +165,16 @@ change_set = surgeon.css('div.to-be-changed')
 change_set = surgeon.xpath("span") # note that we use Nokogiri's HTML Fragment and the use of self is special.
 ```
 
+### Refining the selection
+
+we can skip some nodes based on callbacks added to the Change Set using `select` and `reject` methods.
+
+```ruby
+change_set = surgeon.css('.to-be-changed')
+change_set.reject { |node| node.name == 'div' }.select { |node| node.get_attribute('class').to_s.split(' ').include? 'yeah-do-it' }
+change_set.run # => nodes skipped if reject callback return truthy or if select callback return falsey 
+```
+
 ## Available Changes
 
 ### Replace Tag Name
@@ -227,6 +237,10 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/eturin
 
 
 ## CHANGESET
+
+### v0.4.0
+
+- added `select` and `reject` callbacks to Change Set, based on blocks with `node` as single argument
 
 ### v0.3.0
 
