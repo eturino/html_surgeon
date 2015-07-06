@@ -5,9 +5,11 @@ describe HtmlSurgeon do
     expect(HtmlSurgeon::VERSION).not_to be nil
   end
 
+  let(:lookup_css_class) { 'my-class' }
+
   let(:html) do
     <<-HTML
-    <h3>Show tickets</h3> <p>Your show/event ticket(s) will be given to you by your Newmarket Tour Manager on the day.</p> <h3>Coach seating arrangements</h3> <p>Your Tour Manager will have allocated seats for you on the main coach in advance, taking into consideration any special requests wherever possible, and will advise you where to sit as you board the coach. This will be your seat for the duration of the tour. (Seats are not allocated on any connecting services to and from the main coach).</p> <h3>Joining your holiday</h3> <p>Your final travel documents, including the exact time and place of departure, will be sent to you approximately ten days prior to departure, providing all payments have been made. We are unable to give exact departure times before this.</p> <h3>Meal arrangements</h3> <p>Where meals are not included, your Tour Manager will ensure there are suitable stops made for you to purchase and enjoy lunch and/or dinner each day.</p> <h3>Special requirements</h3> <p>If you have notified us of any special requirements, please check that they have been noted and acknowledged. This is especially important with any dietary needs you may have.</p> <h3>Disabled access</h3> <p>The majority of our tours involve a certain amount of walking, including a short walk from the coach stop to the town, attraction or venue you're visiting. If you are bringing a wheelchair or electric scooter, please let us know as soon as possible so that appropriate arrangements can be made.</p>
+    <h3>Show tickets</h3> <p class="#{lookup_css_class}">Your show/event ticket(s) will be given to you by your Newmarket Tour Manager on the day.</p> <h3>Coach seating arrangements</h3> <p>Your Tour Manager will have allocated seats for you on the main coach in advance, taking into consideration any special requests wherever possible, and will advise you where to sit as you board the coach. This will be your seat for the duration of the tour. (Seats are not allocated on any connecting services to and from the main coach).</p> <h3>Joining your holiday</h3> <p>Your final travel documents, including the exact time and place of departure, will be sent to you approximately ten days prior to departure, providing all payments have been made. We are unable to give exact departure times before this.</p> <h3>Meal arrangements</h3> <p>Where meals are not included, your Tour Manager will ensure there are suitable stops made for you to purchase and enjoy lunch and/or dinner each day.</p> <h3>Special requirements</h3> <p>If you have notified us of any special requirements, please check that they have been noted and acknowledged. This is especially important with any dietary needs you may have.</p> <h3>Disabled access</h3> <p>The majority of our tours involve a certain amount of walking, including a short walk from the coach stop to the town, attraction or venue you're visiting. If you are bringing a wheelchair or electric scooter, please let us know as soon as possible so that appropriate arrangements can be made.</p>
     HTML
   end
 
@@ -22,6 +24,14 @@ describe HtmlSurgeon do
     it 'returns a Service instance with given data' do
       expect(subject).to be_a HtmlSurgeon::Service
       expect(subject.html).to eq html
+    end
+  end
+
+  describe '.node_has_css_class?' do
+    it 'returns true if the given nokogiri node has the given css_class' do
+      node = subject.css(".#{lookup_css_class}").node_set.first
+      expect(described_class.node_has_css_class? node, lookup_css_class).to be_truthy
+      expect(described_class.node_has_css_class? node, 'not-me').to be_falsey
     end
   end
 

@@ -180,7 +180,7 @@ change_set.run # => nodes skipped if reject callback return truthy or if select 
 ### Replace Tag Name
 
 ```ruby
-surgeon.css('div.to-be-changed').replace_name_tag('article')
+surgeon.css('div.to-be-changed').replace_tag_name('article')
 ```
 
 ### Add CSS Class
@@ -191,7 +191,7 @@ surgeon.css('div.to-be-changed').add_css_class('applied-some-stuff')
 
 ## Rollback
 
-the surgen can be used to revert any audited rollback. We can select what changes to rollback based on:
+the surgeon can be used to revert any audited rollback. We can select what changes to rollback based on:
 
 - `change_set`: The change_set UUID
 - `changed_at`: The change timestamp
@@ -207,6 +207,12 @@ surgeon.rollback(change_set: uuid).html # => returns the html with only the give
 surgeon.rollback(changed_at: changed_at).html  # => returns the html with only the change set with timestamp reverted
 surgeon.rollback(changed_from: changed_from).html # => returns the html with any change sets with a timestamp more recent than `changed_from` reverted 
 ```
+
+## Helper Methods
+
+### `HtmlSurgeon.node_has_css_class?(nokogiri_node, css_class)`
+
+it will return true if the given nokogiri node has that css_class
 
 ## Installation
 
@@ -237,6 +243,10 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/eturin
 
 
 ## CHANGESET
+
+### v0.4.1
+
+- added `node_has_css_class?` helper method to `HtmlSurgeon`
 
 ### v0.4.0
 

@@ -26,7 +26,7 @@ module HtmlSurgeon
 
       def audit_data(node)
         basic_audit_data.merge type:           AUDIT_TYPE,
-                               existed_before: self.class.had_class?(node, css_class),
+                               existed_before: self.class.has_class?(node, css_class),
                                class:          css_class
       end
 
@@ -54,7 +54,7 @@ module HtmlSurgeon
         node.get_attribute(CLASS_ATTRIBUTE).to_s.split(CLASS_SEPARATOR)
       end
 
-      def self.had_class?(node, css_class)
+      def self.has_class?(node, css_class)
         node_classes(node).include? css_class
       end
 

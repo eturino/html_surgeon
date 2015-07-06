@@ -20,4 +20,10 @@ module HtmlSurgeon
   def self.for(html_string, **options)
     Service.new html_string, **options
   end
+
+  # helper methods
+  def self.node_has_css_class?(nokogiri_node, css_class)
+    Changes::AddCssClass.has_class? nokogiri_node, css_class
+  end
+
 end
