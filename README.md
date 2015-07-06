@@ -253,6 +253,11 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/eturin
 
 ## CHANGESET
 
+
+### v0.5.1
+
+- works with `nil` html, performs a `to_s` to the given html on initialization.
+
 ### v0.5.0
 
 - added `node_has_css_class?` helper method to `HtmlSurgeon`

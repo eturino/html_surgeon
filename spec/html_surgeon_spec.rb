@@ -306,7 +306,7 @@ describe HtmlSurgeon do
       expect(surgeon.html).to eq expected_html
     end
 
-    context 'rollback' do
+    context 'rollback and clean up' do
       let(:rolledback_html) do
         <<-HTML
 <div>
@@ -414,6 +414,20 @@ describe HtmlSurgeon do
       describe '#clear_audit' do
         it 'will remove from html all the audit attributes, without performing any rollback' do
           expect(subject.clear_audit.html).to eq clear_audit_html
+        end
+      end
+
+      context 'empty change set (search resulting in an empty node set)' do
+        it 'does not do anything and works' do
+          expect(subject.css('article').replace_tag_name('section').run.html).to eq html
+        end
+      end
+
+      context 'with nil given html' do
+        let(:html) { nil }
+
+        it 'does not do anything and works' do
+          expect(subject.css('article').replace_tag_name('section').run.html).to eq ''
         end
       end
     end

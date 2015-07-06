@@ -3,7 +3,7 @@ module HtmlSurgeon
     attr_reader :given_html, :options
 
     def initialize(html_string, audit: false, **extra_options)
-      @given_html = html_string
+      @given_html = html_string.to_s
       @audit      = audit
       @options    = extra_options.merge audit: audit
     end
