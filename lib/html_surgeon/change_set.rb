@@ -1,7 +1,7 @@
 module HtmlSurgeon
 
   class ChangeSet
-    attr_reader :node_set, :base, :change_list, :run_time, :refinement_callbacks
+    attr_reader :node_set, :base, :change_list, :run_time, :refinement_callbacks, :changed_nodes
 
     def self.create(node_set, base)
       new_class.new node_set, base
@@ -17,6 +17,7 @@ module HtmlSurgeon
 
     def initialize(node_set, base)
       @node_set             = node_set
+      @changed_nodes        = []
       @base                 = base
       @change_list          = []
       @id                   = SecureRandom.uuid
@@ -25,6 +26,8 @@ module HtmlSurgeon
     end
 
     delegate :audit?, :html, to: :base
+
+    delegate :size, to: :changed_nodes, prefix: true
 
     # TODO: #preview, like run but in another doc, does not change it yet.
 
@@ -82,6 +85,7 @@ module HtmlSurgeon
       end
 
       do_apply_on_node(node)
+      changed_nodes << node
     end
 
     def do_apply_on_node(node)

@@ -161,6 +161,10 @@ describe HtmlSurgeon do
             expect(res).to eq change_set
             change_set.replace_tag_name('span').run
             expect(change_set.html).to eq expected_html
+
+            expect(change_set.node_set.size).to eq 2
+            expect(change_set.changed_nodes.size).to eq 1
+            expect(change_set.changed_nodes_size).to eq 1
           end
         end
 
@@ -170,6 +174,10 @@ describe HtmlSurgeon do
             expect(res).to eq change_set
             change_set.replace_tag_name('span').run
             expect(change_set.html).to eq expected_html
+
+            expect(change_set.node_set.size).to eq 2
+            expect(change_set.changed_nodes.size).to eq 1
+            expect(change_set.changed_nodes_size).to eq 1
           end
         end
       end

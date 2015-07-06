@@ -87,6 +87,14 @@ change_set.changes
 # ]
 ```
 
+You can also review what nodes were changed, or the count of them
+```ruby
+change_set.run
+
+change_set.changed_nodes # => array with nodes changed (without the skipped nodes)
+change_set.changed_nodes_size # => same as change_set.changed_nodes.size
+```
+
 We can also chain call the changes in a changeset
 
 ```ruby
@@ -253,6 +261,10 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/eturin
 
 ## CHANGESET
 
+
+### v0.5.2
+
+- added `changed_nodes` and `changed_nodes_size` to Change Set
 
 ### v0.5.1
 
