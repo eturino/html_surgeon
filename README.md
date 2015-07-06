@@ -147,7 +147,7 @@ the attribute's value (formatted) is:
 ]
 ```
 
-it has a `change_set` with the UUID of the change set, `changed_at` with the moment it was applied, and the rest define the change.
+it has a `change_set` with the ID of the change set, `changed_at` with the moment it was applied, and the rest define the change.
 
 ## Selecting the Node Set
 
@@ -161,8 +161,9 @@ change_set = surgeon.css('div.to-be-changed')
 
 ### using xpath
 
-not implemented yet.
-
+```ruby
+change_set = surgeon.xpath("span") # note that we use Nokogiri's HTML Fragment and the use of self is special.
+```
 
 ## Available Changes
 
@@ -227,5 +228,10 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/eturin
 
 ## CHANGESET
 
-### v 0.2.0
-- added `rollback support
+### v0.3.0
+
+- added fluid ChangeSet ID setter
+- added change_set xpath support
+
+### v0.2.0
+- added rollback support

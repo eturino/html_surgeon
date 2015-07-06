@@ -1,7 +1,7 @@
 module HtmlSurgeon
 
   class ChangeSet
-    attr_reader :node_set, :base, :change_list, :uuid, :run_time
+    attr_reader :node_set, :base, :change_list, :run_time
 
     def self.create(node_set, base)
       new_class.new node_set, base
@@ -19,13 +19,23 @@ module HtmlSurgeon
       @node_set    = node_set
       @base        = base
       @change_list = []
-      @uuid        = SecureRandom.uuid
+      @id          = SecureRandom.uuid
       @run_time    = nil
     end
 
     delegate :audit?, :html, to: :base
 
     # TODO: #preview, like run but in another doc, does not change it yet.
+
+    # chainable fluid ID setter
+    def id(custom_id = nil)
+      if custom_id
+        @id = custom_id
+        self
+      else
+        @id
+      end
+    end
 
     def run
       @run_time = Time.now.utc

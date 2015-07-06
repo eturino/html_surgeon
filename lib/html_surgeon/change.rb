@@ -7,7 +7,7 @@ module HtmlSurgeon
 
     attr_reader :change_set
     delegate :audit?, to: :change_set
-    delegate :uuid, :run_time, to: :change_set, prefix: true
+    delegate :id, :run_time, to: :change_set, prefix: true
 
     def initialize(change_set:)
       @change_set = change_set
@@ -34,7 +34,7 @@ module HtmlSurgeon
     private
     def basic_audit_data
       {
-        change_set: change_set_uuid,
+        change_set: change_set_id,
         changed_at: change_set_run_time
       }
     end
