@@ -26,20 +26,22 @@ module HtmlSurgeon
       ChangeSet.create(node_set, self)
     end
 
+    # returns the number of changes performed
     def rollback(change_set: nil, changed_at: nil, changed_from: nil)
-      doc.css("[#{DATA_CHANGE_AUDIT_ATTRIBUTE}]").each do |node|
-        NodeReverser.new(node: node, change_set: change_set, changed_at: changed_at, changed_from: changed_from).call
+      doc.css("[#{DATA_CHANGE_AUDIT_ATTRIBUTE}]").reduce(0) do |sum, node|
+        reverser = NodeServices::Reverser.new node:         node,
+                                    change_set:   change_set,
+                                    changed_at:   changed_at,
+                                    changed_from: changed_from
+        sum + reverser.call
       end
-
-      self
     end
 
     def clear_audit
-      doc.css("[#{DATA_CHANGE_AUDIT_ATTRIBUTE}]").each do |node|
-        NodeAuditCleaner.new(node: node).call
+      doc.css("[#{DATA_CHANGE_AUDIT_ATTRIBUTE}]").reduce(0) do |sum, node|
+        cleaner = NodeServices::AuditCleaner.new node: node
+        sum + cleaner.call
       end
-
-      self
     end
 
     private

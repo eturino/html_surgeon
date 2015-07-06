@@ -389,39 +389,49 @@ describe HtmlSurgeon do
         context 'all' do
           let(:rollback_options) { {} }
 
-          it 'reverts all audited changes' do
-            expect(subject.rollback(**rollback_options).html).to eq rolledback_html
+          it 'reverts all audited changes; returns number of changes' do
+            res = subject.rollback **rollback_options
+            expect(res).to eq 3
+            expect(subject.html).to eq rolledback_html
           end
         end
 
         context 'with change_set id' do
           let(:rollback_options) { { change_set: id } }
 
-          it 'reverts all audited changes' do
-            expect(subject.rollback(**rollback_options).html).to eq partially_rolledback_html
+          it 'reverts all audited changes; returns number of changes' do
+            res = subject.rollback **rollback_options
+            expect(res).to eq 2
+            expect(subject.html).to eq partially_rolledback_html
           end
         end
 
         context 'with changed_at timestamp' do
           let(:rollback_options) { { changed_at: changed_at } }
 
-          it 'reverts all audited changes' do
-            expect(subject.rollback(**rollback_options).html).to eq partially_rolledback_html
+          it 'reverts all audited changes; returns number of changes' do
+            res = subject.rollback **rollback_options
+            expect(res).to eq 2
+            expect(subject.html).to eq partially_rolledback_html
           end
         end
 
         context 'with changed_from (rollback all changes from that moment onwards)' do
           let(:rollback_options) { { changed_from: changed_from } }
 
-          it 'reverts all audited changes' do
-            expect(subject.rollback(**rollback_options).html).to eq partially_rolledback_html
+          it 'reverts all audited changes; returns number of changes' do
+            res = subject.rollback **rollback_options
+            expect(res).to eq 2
+            expect(subject.html).to eq partially_rolledback_html
           end
         end
       end
 
       describe '#clear_audit' do
-        it 'will remove from html all the audit attributes, without performing any rollback' do
-          expect(subject.clear_audit.html).to eq clear_audit_html
+        it 'will remove from html all the audit attributes, without performing any rollback; returns number of changes' do
+          res = subject.clear_audit
+          expect(res).to eq 2
+          expect(subject.html).to eq clear_audit_html
         end
       end
 

@@ -6,14 +6,14 @@ require 'active_support/all'
 require 'html_surgeon/version'
 require 'html_surgeon/abstract_method_error'
 require 'html_surgeon/auditor'
-require 'html_surgeon/node_reverser'
-require 'html_surgeon/node_audit_cleaner'
 require 'html_surgeon/service'
 require 'html_surgeon/change_set'
 require 'html_surgeon/change'
 require 'html_surgeon/changes'
 require 'html_surgeon/changes/add_css_class'
 require 'html_surgeon/changes/replace_tag_name'
+require 'html_surgeon/node_services/audit_cleaner'
+require 'html_surgeon/node_services/reverser'
 
 module HtmlSurgeon
   DATA_CHANGE_AUDIT_ATTRIBUTE = 'data-surgeon-audit'.freeze

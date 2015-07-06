@@ -210,10 +210,17 @@ We can also revert all audited changes.
 ```ruby
 surgeon = HtmlSurgeon.for(GIVEN_HTML) 
 
-surgeon.rollback.html # => returns the html with all events reverted 
-surgeon.rollback(change_set: uuid).html # => returns the html with only the given change set reverted
-surgeon.rollback(changed_at: changed_at).html  # => returns the html with only the change set with timestamp reverted
-surgeon.rollback(changed_from: changed_from).html # => returns the html with any change sets with a timestamp more recent than `changed_from` reverted 
+surgeon.rollback # => Integer with number of changes reverted
+surgeon.html # => returns the html with all events reverted 
+
+surgeon.rollback(change_set: uuid) # => Integer with number of changes reverted
+surgeon.html # => returns the html with only the given change set reverted
+
+surgeon.rollback(changed_at: changed_at) # => Integer with number of changes reverted
+surgeon.html  # => returns the html with only the change set with timestamp reverted
+
+surgeon.rollback(changed_from: changed_from) # => Integer with number of changes reverted
+surgeon.html # => returns the html with any change sets with a timestamp more recent than `changed_from` reverted 
 ```
 
 ## Clear Audit trail
@@ -222,7 +229,8 @@ we can clear all audit from the given html with the `clear_audit` method.
 
 ```ruby
 surgeon = HtmlSurgeon.for(GIVEN_HTML)
-surgeon.clear_audit.html # => returns the html with all audit html attributes removed
+surgeon.clear_audit # => returns an Integer with the number of changes
+surgeon.html # => returns the html with all audit html attributes removed
 ```
 
 ## Helper Methods
@@ -261,6 +269,10 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/eturin
 
 ## CHANGESET
 
+
+### v0.6.0
+
+- *WARNING: BREAKING API CHANGE*: now `rollback` and `clear_audit` return the number of changes performed
 
 ### v0.5.2
 
