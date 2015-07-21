@@ -16,6 +16,11 @@ module HtmlSurgeon
       end
 
       private
+
+      def applicable?(node)
+        node.name.to_s != new_tag_name.to_s
+      end
+
       def apply_in(node)
         node.name = new_tag_name
       end

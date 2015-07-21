@@ -123,7 +123,7 @@ surgeon.css('.lol').replace_tag_name('span').add_css_class('hey').run
 surgeon.html # =>
 # <div>
 #     <h1>Something</h1>
-#     <span id="1" class="lol to-be-changed hey" data-surgeon-audit='[{"change_set":"830e96dc-fa07-40ce-8968-ea5c55ec4b84","changed_at":"2015-07-02T12:52:43.874Z","type":"replace_tag_name","old":"div","new":"span"},{"change_set":"830e96dc-fa07-40ce-8968-ea5c55ec4b84","changed_at":"2015-07-02T12:52:43.874Z","type":"add_css_class","existed_before":false,"class":"hey"}]'>1</span>
+#     <span id="1" class="lol to-be-changed hey" data-surgeon-audit='[{"change_set":"830e96dc-fa07-40ce-8968-ea5c55ec4b84","changed_at":"2015-07-02T12:52:43.874Z","type":"replace_tag_name","old":"div","new":"span"},{"change_set":"830e96dc-fa07-40ce-8968-ea5c55ec4b84","changed_at":"2015-07-02T12:52:43.874Z","type":"add_css_class","class":"hey"}]'>1</span>
 #     <span>Other</span>
 #     <div id="2" class="another to-be-changed">
 #         <ul>
@@ -149,7 +149,6 @@ the attribute's value (formatted) is:
     "change_set":"830e96dc-fa07-40ce-8968-ea5c55ec4b84",
     "changed_at":"2015-07-02T12:52:43.874Z",
     "type":"add_css_class",
-    "existed_before":false,
     "class":"hey"
   }
 ]
@@ -195,6 +194,12 @@ surgeon.css('div.to-be-changed').replace_tag_name('article')
 
 ```ruby
 surgeon.css('div.to-be-changed').add_css_class('applied-some-stuff')
+```
+
+### Remove Attribute
+
+```ruby
+surgeon.css('div.to-be-changed').remove_attribute('style')
 ```
 
 ## Rollback
@@ -269,6 +274,11 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/eturin
 
 ## CHANGESET
 
+
+### v0.7.0
+
+- added `remove_attribute` change.
+- changes will be skipped if not needed on that node (will not do anything, nor be added to the audit).
 
 ### v0.6.0
 

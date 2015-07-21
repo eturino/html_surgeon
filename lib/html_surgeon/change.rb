@@ -14,13 +14,19 @@ module HtmlSurgeon
     end
 
     def apply(node)
+      return false unless applicable?(node)
+
       auditor = auditor_class.new(node)
 
       auditor.add_change(audit_data(node))
       apply_in node
       auditor.apply
 
-      self
+      true
+    end
+
+    def applicable?(node)
+      true
     end
 
     def auditor_class
@@ -39,7 +45,7 @@ module HtmlSurgeon
       }
     end
 
-    def audit_data(node)
+    def audit_data(_node)
       raise AbstractMethodError, "a lazy developer has not implemented this method in #{self.class}"
     end
 

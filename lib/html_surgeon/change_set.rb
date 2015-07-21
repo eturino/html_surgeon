@@ -84,14 +84,16 @@ module HtmlSurgeon
         end
       end
 
-      do_apply_on_node(node)
-      changed_nodes << node
+      applied = do_apply_on_node(node)
+      changed_nodes << node if applied
     end
 
     def do_apply_on_node(node)
-      change_list.each do |change|
+      map = change_list.map do |change|
         change.apply(node)
       end
+
+      map.any? { |result| !!result }
     end
   end
 end

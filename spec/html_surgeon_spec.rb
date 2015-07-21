@@ -9,7 +9,7 @@ describe HtmlSurgeon do
 
   let(:html) do
     <<-HTML
-    <h3>Show tickets</h3> <p class="#{lookup_css_class}">Your show/event ticket(s) will be given to you by your Newmarket Tour Manager on the day.</p> <h3>Coach seating arrangements</h3> <p>Your Tour Manager will have allocated seats for you on the main coach in advance, taking into consideration any special requests wherever possible, and will advise you where to sit as you board the coach. This will be your seat for the duration of the tour. (Seats are not allocated on any connecting services to and from the main coach).</p> <h3>Joining your holiday</h3> <p>Your final travel documents, including the exact time and place of departure, will be sent to you approximately ten days prior to departure, providing all payments have been made. We are unable to give exact departure times before this.</p> <h3>Meal arrangements</h3> <p>Where meals are not included, your Tour Manager will ensure there are suitable stops made for you to purchase and enjoy lunch and/or dinner each day.</p> <h3>Special requirements</h3> <p>If you have notified us of any special requirements, please check that they have been noted and acknowledged. This is especially important with any dietary needs you may have.</p> <h3>Disabled access</h3> <p>The majority of our tours involve a certain amount of walking, including a short walk from the coach stop to the town, attraction or venue you're visiting. If you are bringing a wheelchair or electric scooter, please let us know as soon as possible so that appropriate arrangements can be made.</p>
+    <h3>Show tickets</h3> <p class="#{lookup_css_class}">Your show/event ticket(s) will be given to you by your Newmarket Tour Manager on the day.</p> <h3>Coach seating arrangements</h3> <p>Your Tour Manager will have allocated seats for you on the main coach in advance, taking into consideration any special requests wherever possible, and will advise you where to sit as you board the coach. This will be your seat for the duration of the tour. (Seats are not allocated on any connecting services to and from the main coach).</p> <h3>Joining your holiday</h3> <p>Your final travel documents, including the exact time and place of departure, will be sent to you approximately ten days prior to departure, providing all payments have been made. We are unable to give exact departure times before this.</p> <h3>Meal arrangements</h3> <p>Where meals are not included, your Tour Manager will ensure there are suitable stops made for you to purchase and enjoy lunch and/or dinner each day.</p> <h3>Special requirements</h3> <p>If you have notified us of any special requirements, please check that they have been noted and acknowledged. This is especially important with any dietary needs you may have.</p> <h3 style="color: red">Disabled access</h3> <p>The majority of our tours involve a certain amount of walking, including a short walk from the coach stop to the town, attraction or venue you're visiting. If you are bringing a wheelchair or electric scooter, please let us know as soon as possible so that appropriate arrangements can be made.</p>
     HTML
   end
 
@@ -72,6 +72,7 @@ describe HtmlSurgeon do
     let(:old_tag_name) { 'h3' }
     let(:new_tag_name) { 'h4' }
     let(:added_css_class) { 'my-added-css-class' }
+    let(:removed_attribute) { 'style' }
 
     describe 'ChangeSet' do
       describe 'service#css' do
@@ -204,10 +205,26 @@ describe HtmlSurgeon do
         end
       end
 
+      describe '#remove_attribute' do
+        it 'adds a RemoveAttribute change: prepares the change, but does not apply anything yet' do
+          change_set = subject.css(css_selector)
+          x          = change_set.remove_attribute(removed_attribute)
+          expect(x).to eq change_set
+          expect(change_set.changes).to eq ["remove attribute #{removed_attribute}"]
+
+          expect(subject.html).to eq html
+        end
+      end
+
       describe '#run' do
         let(:change_set) { subject.css(css_selector) }
-        let(:run_changes) { change_set.replace_tag_name(new_tag_name).add_css_class(added_css_class).run
-        }
+        let(:run_changes) do
+          change_set
+            .replace_tag_name(new_tag_name)
+            .add_css_class(added_css_class)
+            .remove_attribute(removed_attribute)
+            .run
+        end
 
         it 'applies the changes in the css selected node set on the final run chained call (returns the change set)' do
           run_changes
@@ -233,13 +250,30 @@ describe HtmlSurgeon do
                 new:        new_tag_name
               },
               {
-                change_set:     change_set.id,
-                changed_at:     change_set.run_time,
-                type:           :add_css_class,
-                existed_before: false,
-                class:          added_css_class
+                change_set: change_set.id,
+                changed_at: change_set.run_time,
+                type:       :add_css_class,
+                class:      added_css_class
               }
             ]
+
+            audit_changes_json = Oj.dump audit_changes
+
+            expect(subject.html).to include "<#{new_tag_name} data-surgeon-audit='#{audit_changes_json}' class=\"#{added_css_class}\">"
+
+
+            # the last one has also the style change
+
+
+            style_change = {
+              change_set: change_set.id,
+              changed_at: change_set.run_time,
+              type:       :remove_attribute,
+              attribute:  :style,
+              value:      'color: red'
+            }
+
+            audit_changes << style_change
 
             audit_changes_json = Oj.dump audit_changes
 
@@ -273,7 +307,7 @@ describe HtmlSurgeon do
       <<-HTML
 <div>
     <h1>Something</h1>
-    <div id="1" class="lol to-be-changed">1</div>
+    <div id="1" class="lol to-be-changed" style="color: red">1</div>
     <span>Other</span>
     <div id="2" class="another to-be-changed">
         <ul>
@@ -291,7 +325,7 @@ describe HtmlSurgeon do
       <<-HTML
 <div>
     <h1>Something</h1>
-    <span id="1" class="lol to-be-changed hey" data-surgeon-audit='[{"change_set":"#{id}","changed_at":#{changed_at},"type":"replace_tag_name","old":"div","new":"span"},{"change_set":"#{id}","changed_at":#{changed_at},"type":"add_css_class","existed_before":false,"class":"hey"}]'>1</span>
+    <span id="1" class="lol to-be-changed hey" data-surgeon-audit='[{"change_set":"#{id}","changed_at":#{changed_at_str},"type":"replace_tag_name","old":"div","new":"span"},{"change_set":"#{id}","changed_at":#{changed_at_str},"type":"add_css_class","class":"hey"},{"change_set":"#{id}","changed_at":#{changed_at_str},"type":"remove_attribute","attribute":"style","value":"color: red"}]'>1</span>
     <span>Other</span>
     <div id="2" class="another to-be-changed">
         <ul>
@@ -305,9 +339,10 @@ describe HtmlSurgeon do
 
     let(:change_set) { surgeon.css('.lol') }
     let(:id) { change_set.id }
-    let(:changed_at) { Oj.dump change_set.run_time }
+    let(:changed_at) { change_set.run_time }
+    let(:changed_at_str) { Oj.dump changed_at }
 
-    let(:run_change) { change_set.replace_tag_name('span').add_css_class('hey').run }
+    let(:run_change) { change_set.replace_tag_name('span').add_css_class('hey').remove_attribute('style').run }
 
     it 'works' do
       run_change
@@ -319,7 +354,7 @@ describe HtmlSurgeon do
         <<-HTML
 <div>
     <h1>Something</h1>
-    <div id="1" class="lol to-be-changed">1</div>
+    <div id="1" class="lol to-be-changed" style="color: red">1</div>
     <span>Other</span>
     <div id="2" class="another to-be-changed">
         <ul>
@@ -335,10 +370,10 @@ describe HtmlSurgeon do
         <<-HTML
 <div>
     <h1>Something</h1>
-    <div id="1" class="lol to-be-changed">1</div>
+    <div id="1" class="lol to-be-changed" style="color: red">1</div>
     <span>Other</span>
     <div id="2" class="another to-be-changed">
-        <ul class="yeah" data-surgeon-audit='[{"change_set":"#{id2}","changed_at":"#{changed_at2}","type":"add_css_class","existed_before":false,"class":"yeah"}]'>
+        <ul class="yeah" data-surgeon-audit='[{"change_set":"#{id2}","changed_at":#{changed_at2_str},"type":"add_css_class","class":"yeah"}]'>
             <li>1</li>
             <li>2</li>
         </ul>
@@ -351,10 +386,10 @@ describe HtmlSurgeon do
         <<-HTML
 <div>
     <h1>Something</h1>
-    <span id="1" class="lol to-be-changed hey" data-surgeon-audit='[{"change_set":"#{id}","changed_at":"#{changed_at}","type":"replace_tag_name","old":"div","new":"span"},{"change_set":"#{id}","changed_at":"#{changed_at}","type":"add_css_class","existed_before":false,"class":"hey"}]'>1</span>
+    <span id="1" class="lol to-be-changed hey" data-surgeon-audit='[{"change_set":"#{id}","changed_at":#{changed_at_str},"type":"replace_tag_name","old":"div","new":"span"},{"change_set":"#{id}","changed_at":#{changed_at_str},"type":"add_css_class","class":"hey"},{"change_set":"#{id}","changed_at":#{changed_at_str},"type":"remove_attribute","attribute":"style","value":"color: red"}]'>1</span>
     <span>Other</span>
     <div id="2" class="another to-be-changed">
-        <ul class="yeah" data-surgeon-audit='[{"change_set":"#{id2}","changed_at":"#{changed_at2}","type":"add_css_class","existed_before":false,"class":"yeah"}]'>
+        <ul class="yeah" data-surgeon-audit='[{"change_set":"#{id2}","changed_at":#{changed_at2_str},"type":"add_css_class","class":"yeah"}]'>
             <li>1</li>
             <li>2</li>
         </ul>
@@ -382,7 +417,9 @@ describe HtmlSurgeon do
       let(:id) { '830e96dc-fa07-40ce-8968-ea5c55ec4b84' }
       let(:id2) { SecureRandom.uuid }
       let(:changed_at) { '2015-07-02T12:52:43.874Z' }
+      let(:changed_at_str) { Oj.dump changed_at }
       let(:changed_at2) { '2015-06-01T10:10:10.123Z' }
+      let(:changed_at2_str) { Oj.dump changed_at2 }
       let(:changed_from) { '2015-07-01'.to_date }
 
       describe '#rollback' do
@@ -391,7 +428,7 @@ describe HtmlSurgeon do
 
           it 'reverts all audited changes; returns number of changes' do
             res = subject.rollback **rollback_options
-            expect(res).to eq 3
+            expect(res).to eq 4
             expect(subject.html).to eq rolledback_html
           end
         end
@@ -401,7 +438,7 @@ describe HtmlSurgeon do
 
           it 'reverts all audited changes; returns number of changes' do
             res = subject.rollback **rollback_options
-            expect(res).to eq 2
+            expect(res).to eq 3
             expect(subject.html).to eq partially_rolledback_html
           end
         end
@@ -411,7 +448,7 @@ describe HtmlSurgeon do
 
           it 'reverts all audited changes; returns number of changes' do
             res = subject.rollback **rollback_options
-            expect(res).to eq 2
+            expect(res).to eq 3
             expect(subject.html).to eq partially_rolledback_html
           end
         end
@@ -421,7 +458,7 @@ describe HtmlSurgeon do
 
           it 'reverts all audited changes; returns number of changes' do
             res = subject.rollback **rollback_options
-            expect(res).to eq 2
+            expect(res).to eq 3
             expect(subject.html).to eq partially_rolledback_html
           end
         end
@@ -447,6 +484,72 @@ describe HtmlSurgeon do
         it 'does not do anything and works' do
           expect(subject.css('article').replace_tag_name('section').run.html).to eq ''
         end
+      end
+    end
+  end
+
+  describe 'if changes are not needed' do
+
+    let(:audit_options) { { audit: true } }
+
+    let(:html) do
+      <<-HTML
+<div>
+    <h1 class="my_class">Something</h1>
+</div>
+      HTML
+    end
+
+    it 'does not change anything, does not add audit' do
+      x = subject.css('h1').replace_tag_name('h1').add_css_class('my_class').remove_attribute('style').run
+      expect(x.html).to eq html
+    end
+
+    context 'with only a few changes needed' do
+
+      let(:expected_html) do
+        <<-HTML
+<div>
+    <h1>Something</h1>
+    <span id="1" class="lol to-be-changed hey" data-surgeon-audit='[{"change_set":"#{id}","changed_at":#{changed_at_str},"type":"replace_tag_name","old":"div","new":"span"},{"change_set":"#{id}","changed_at":#{changed_at_str},"type":"add_css_class","class":"hey"},{"change_set":"#{id}","changed_at":#{changed_at_str},"type":"remove_attribute","attribute":"style","value":"color: red"}]'>1</span>
+    <span>Other</span>
+    <div id="2" class="another to-be-changed">
+        <ul>
+            <li>1</li>
+            <li>2</li>
+        </ul>
+    </div>
+</div>
+        HTML
+      end
+
+      let(:change_set) { subject.css('h1') }
+      let(:id) { change_set.id }
+      let(:changed_at) { change_set.run_time }
+      let(:changed_at_str) { Oj.dump changed_at }
+
+      let(:run_change) { change_set.replace_tag_name('h1').add_css_class('my_class').remove_attribute('style').run }
+
+
+      let(:html) do
+        <<-HTML
+<div>
+    <h1 class="my_class" style="color: red">Something</h1>
+</div>
+        HTML
+      end
+
+      let(:expected_html) do
+        <<-HTML
+<div>
+    <h1 class="my_class" data-surgeon-audit='[{"change_set":"#{id}","changed_at":#{changed_at_str},"type":"remove_attribute","attribute":"style","value":"color: red"}]'>Something</h1>
+</div>
+        HTML
+      end
+
+      it 'skips the unneeded changes' do
+        run_change
+        expect(subject.html).to eq expected_html
       end
     end
   end
