@@ -298,6 +298,7 @@ describe HtmlSurgeon do
         expect { change.send :log }.to raise_error HtmlSurgeon::AbstractMethodError
         expect { change.send :audit_data, nil }.to raise_error HtmlSurgeon::AbstractMethodError
         expect { change.send :apply_in, nil }.to raise_error HtmlSurgeon::AbstractMethodError
+        expect { change.send :applicable?, nil }.to raise_error HtmlSurgeon::AbstractMethodError
       end
     end
   end

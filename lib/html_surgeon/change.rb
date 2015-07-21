@@ -25,8 +25,8 @@ module HtmlSurgeon
       true
     end
 
-    def applicable?(node)
-      true
+    def applicable?(_node)
+      raise AbstractMethodError, "a lazy developer has not implemented this method in #{self.class}"
     end
 
     def auditor_class
