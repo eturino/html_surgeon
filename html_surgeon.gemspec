@@ -31,7 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'oj'
   spec.add_dependency 'oj_mimic_json'
   spec.add_dependency 'naught'
-  spec.add_development_dependency 'bundler', '~> 1.10'
-  spec.add_development_dependency 'rake', '~> 10.0'
+  spec.add_development_dependency 'bundler', '~> 2'
+  spec.add_development_dependency 'rake', '~> 13.0'
   spec.add_development_dependency 'rspec'
 end
