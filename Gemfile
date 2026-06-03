@@ -10,5 +10,3 @@ group :development, :test do
   gem 'pry-doc'
   gem 'pry-rescue'
 end
-
-gem 'codeclimate-test-reporter', :group => :test, :require => nil
